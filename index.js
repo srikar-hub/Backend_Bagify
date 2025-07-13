@@ -2,7 +2,10 @@ const express = require("express");
 const cors = require("cors");
 const user = require("./routers/userRouter");
 const dp = require("./config/mongoose-connection");
+
 const productRoute = require("./routers/productRouter");
+const cartRoute = require("./routers/cartRouter");
+const addressRoute = require("./routers/addressRouter");
 
 const cookieParser = require("cookie-parser");
 
@@ -18,6 +21,8 @@ app.use(
 );
 app.use("/product", productRoute);
 app.use("/", user);
+app.use("/cart", cartRoute);
+app.use("/address", addressRoute);
 app.get("/send", function (req, res) {
   res.send("Working");
 });

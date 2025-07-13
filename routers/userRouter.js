@@ -5,7 +5,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 router.post("/create", async function (req, res) {
-  const { username, email, password } = req.body;
+  const { username, email, password, phoneNumber, address } = req.body;
   try {
     const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash(password, salt);
@@ -14,6 +14,8 @@ router.post("/create", async function (req, res) {
       name: username,
       email: email,
       password: hash,
+      phoneNumber: phoneNumber,
+      address: address,
     });
     const token = jwt.sign({ email, userid: user._id }, "sssss");
     res.cookie("token", token);
@@ -55,4 +57,32 @@ router.get("/logout", function (req, res) {
   res.clearCookie("token");
   res.status(200).json({ message: "Logged out successfully" });
 });
+// Get current user info
+router.get("/me", async function (req, res) {
+  try {
+    // If using sessions, req.session.userid or req.session.user
+    // If using JWT in cookies, decode from req.cookies
+    // For now, try to get user id from cookie or session
+    let userId = req.session?.userid;
+    if (!userId && req.cookies && req.cookies.token) {
+      // decode JWT
+      const jwt = require("jsonwebtoken");
+      try {
+        const decoded = jwt.verify(req.cookies.token, "sssss");
+        userId = decoded.userid;
+      } catch {
+        return res.status(401).json({ message: "Invalid token" });
+      }
+    }
+    if (!userId) {
+      return res.status(401).json({ message: "Not logged in" });
+    }
+    const user = await userModel.findById(userId).select("-password");
+    if (!user) return res.status(404).json({ message: "User not found" });
+    res.json({ user });
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 module.exports = router;

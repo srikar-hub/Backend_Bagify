@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const upload = require("../config/multer-config");
 const Product = require("../models/productModel");
+const loggedin = require("../middlewares/loggedin");
 router.post("/add", upload.single("image"), async (req, res) => {
   try {
     const { name, price, discount, bgcolor, panelcolor, textcolor } = req.body;
@@ -24,7 +25,7 @@ router.post("/add", upload.single("image"), async (req, res) => {
 });
 
 // Get all products
-router.get("/all", async (req, res) => {
+router.get("/all", loggedin, async (req, res) => {
   try {
     const products = await Product.find().lean();
 
