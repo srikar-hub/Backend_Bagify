@@ -5,7 +5,16 @@ const Product = require("../models/productModel");
 const loggedin = require("../middlewares/loggedin");
 router.post("/add", upload.single("image"), async (req, res) => {
   try {
-    const { name, price, discount, bgcolor, panelcolor, textcolor } = req.body;
+    const {
+      name,
+      price,
+      discount,
+      bgcolor,
+      panelcolor,
+      textcolor,
+      company,
+      category,
+    } = req.body;
 
     const newProduct = await Product.create({
       name,
@@ -14,6 +23,8 @@ router.post("/add", upload.single("image"), async (req, res) => {
       bgcolor,
       panelcolor,
       textcolor,
+      company,
+      category,
       image: req.file.buffer,
     });
 
