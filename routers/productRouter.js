@@ -25,7 +25,7 @@ router.post("/add", upload.single("image"), async (req, res) => {
       textcolor,
       company,
       category,
-      image: req.file.buffer,
+      image: req.file ? req.file.buffer : undefined,
     });
 
     res.status(201).json({ message: "Product created", product: newProduct });
@@ -40,17 +40,29 @@ router.get("/all", loggedin, async (req, res) => {
   try {
     const products = await Product.find().lean();
 
-    // Convert Mongoose buffers to base64 strings
+    // Convert Buffer or Binary images to base64 strings
     const productsWithBase64 = products.map((product) => {
-      if (product.image?.data) {
-        const base64String = product.image.data.toString("base64");
-        return {
-          ...product,
-          image: {
-            ...product.image,
-            data: base64String,
-          },
-        };
+      if (product.image) {
+        // Handle Buffer
+        if (Buffer.isBuffer(product.image)) {
+          return {
+            ...product,
+            image: {
+              data: product.image.toString("base64"),
+              contentType: "image/jpeg",
+            },
+          };
+        }
+        // Handle MongoDB Binary type (has .buffer property)
+        if (product.image.buffer) {
+          return {
+            ...product,
+            image: {
+              data: Buffer.from(product.image.buffer).toString("base64"),
+              contentType: "image/jpeg",
+            },
+          };
+        }
       }
       return product;
     });
