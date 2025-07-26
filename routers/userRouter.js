@@ -21,7 +21,7 @@ router.post("/create", async function (req, res) {
       phoneNumber: phoneNumber,
       address: address,
     });
-    const token = jwt.sign({ email, userid: user._id }, "sssss");
+    const token = jwt.sign({ email, userid: user._id }, process.env.JWT_SECRET);
     res.cookie("token", token);
     res.status(201).json({ message: "User Created Successfully", info: user });
   } catch (error) {
@@ -41,7 +41,10 @@ router.post("/login", async function (req, res) {
     try {
       bcrypt.compare(password, user.password, function (err, result) {
         if (result) {
-          let token = jwt.sign({ email: email, userid: user._id }, "sssss");
+          let token = jwt.sign(
+            { email: email, userid: user._id },
+            process.env.JWT_SECRET
+          );
           res.cookie("token", token);
           res.status(200).json({ message: "User Login Successfull" });
         } else {
@@ -71,7 +74,7 @@ router.get("/me", async function (req, res) {
       // decode JWT
       const jwt = require("jsonwebtoken");
       try {
-        const decoded = jwt.verify(req.cookies.token, "sssss");
+        const decoded = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
         userId = decoded.userid;
       } catch {
         return res.status(401).json({ message: "Invalid token" });

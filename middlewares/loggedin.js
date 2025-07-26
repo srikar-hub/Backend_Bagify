@@ -5,7 +5,7 @@ module.exports = async function (req, res, next) {
     return res.status(401).json({ message: "Login In First" });
   }
   try {
-    let decode = jwt.verify(req.cookies.token, "sssss");
+    let decode = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
     let user = await userModel
       .findOne({
         email: decode.email,
