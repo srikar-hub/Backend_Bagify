@@ -22,7 +22,11 @@ router.post("/create", async function (req, res) {
       address: address,
     });
     const token = jwt.sign({ email, userid: user._id }, process.env.JWT_SECRET);
-    res.cookie("token", token);
+    res.cookie("token", token, {
+      httpOnly: true,
+      sameSite: "None",
+      secure: true, // set to false if testing on localhost without HTTPS
+    });
     res.status(201).json({ message: "User Created Successfully", info: user });
   } catch (error) {
     console.error(error);
@@ -45,7 +49,11 @@ router.post("/login", async function (req, res) {
             { email: email, userid: user._id },
             process.env.JWT_SECRET
           );
-          res.cookie("token", token);
+          res.cookie("token", token, {
+            httpOnly: true,
+            sameSite: "None",
+            secure: true, // set to false if testing on localhost without HTTPS
+          });
           res.status(200).json({ message: "User Login Successfull" });
         } else {
           res
