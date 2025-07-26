@@ -7,9 +7,13 @@ const jwt = require("jsonwebtoken");
 router.post("/create", async function (req, res) {
   const { username, email, password, phoneNumber, address } = req.body;
   try {
+    // Check if email already exists
+    const existingUser = await userModel.findOne({ email });
+    if (existingUser) {
+      return res.status(409).json({ message: "User already exists" });
+    }
     const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash(password, salt);
-
     const user = await userModel.create({
       name: username,
       email: email,
@@ -19,7 +23,6 @@ router.post("/create", async function (req, res) {
     });
     const token = jwt.sign({ email, userid: user._id }, "sssss");
     res.cookie("token", token);
-
     res.status(201).json({ message: "User Created Successfully", info: user });
   } catch (error) {
     console.error(error);
